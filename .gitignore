@@ -5,7 +5,6 @@ __pycache__/
 db.sqlite3
 *.pyc
 *.pyo
-.felix/
 .ruff_cache/
 .mypy_cache/
 *.egg-info/

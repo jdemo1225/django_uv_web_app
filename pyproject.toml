@@ -1,7 +1,7 @@
 [project]
 name = "django-uv-web-app"
 version = "0.1.0"
-description = "Django task tracker fixture managed exclusively by uv — used to test Felix's Python/uv flows (scan, remediate, deps:update, smart major upgrades)."
+description = "Django task tracker fixture managed exclusively by uv — used to exercise dependency-upgrade tooling flows (scan, remediate, single/major version bumps) on Python/uv projects."
 readme = "README.md"
 requires-python = ">=3.10,<3.12"
 dependencies = [
@@ -21,5 +21,5 @@ packages = ["tasks", "tasktracker"]
 
 [tool.uv]
 # Keep this fixture deterministic: we want `uv sync` to install exactly the
-# versions below so Felix always sees the same vulnerable baseline.
+# versions below so upgrade tooling always sees the same vulnerable baseline.
 package = true

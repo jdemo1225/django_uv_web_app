@@ -1,10 +1,12 @@
 # django_uv_web_app
 
 A small Django task-tracker web app that is managed exclusively by [uv](https://docs.astral.sh/uv/).
-It exists as a **felix test fixture** — the project is intentionally pinned to
-vulnerable, older dependency versions and uses a handful of legacy Django APIs
-so that running a major upgrade through felix exercises the smart-update
+It exists as a **test fixture for dependency-upgrade tooling** — the project is
+intentionally pinned to vulnerable, older dependency versions and uses a handful
+of legacy Django APIs so that running a major upgrade exercises a smart-update
 pipeline across multiple files.
+
+> ⚠️ Not for production use. Dependencies are deliberately out of date.
 
 ## Project layout
 
@@ -26,7 +28,7 @@ uv run python manage.py migrate
 uv run python manage.py runserver
 ```
 
-## Vulnerable baseline — what Felix should detect
+## Vulnerable baseline
 
 | Package                | Pinned    | Known advisory surface                         |
 | ---------------------- | --------- | ---------------------------------------------- |
@@ -51,23 +53,23 @@ A major upgrade to Django 5.x forces patches across **five** files:
 | `tasks/middleware.py`           | `django.utils.timezone.utc`                           | 5.0        |
 | `tasktracker/settings.py`       | `STATICFILES_STORAGE` / `DEFAULT_FILE_STORAGE` + `USE_L10N` | 5.0 (replaced by `STORAGES`) |
 
-## Felix test flows this fixture covers
+## Scenarios this fixture exercises
 
-| Flow                                  | Command                                                |
-| ------------------------------------- | ------------------------------------------------------ |
-| Scan + tree view (uv.lock detection)  | `felix scan`                                           |
-| Advisory rollup for direct + trans.   | `felix scan` output                                    |
-| Normal single-dep bump (no breakage)  | `felix deps:update python-dotenv==1.0.0`               |
-| Minor bump (no breakage)              | `felix deps:update djangorestframework==3.14.0`        |
-| **Major upgrade w/ multi-file code patches** | `felix deps:update django==5.2.8`               |
-| Transitive Tier 1 (parent-first)      | `felix deps:update urllib3==1.26.18`                   |
-| Transitive Tier 2 (direct pin fallback) | `felix deps:update certifi==2024.7.4`                |
-| Full remediate sweep                  | `felix remediate`                                      |
-| Lockfile re-sync                      | verify `uv.lock` regenerates after each update         |
+| Scenario                                | What it tests                                           |
+| --------------------------------------- | ------------------------------------------------------- |
+| Lockfile scan                           | `uv.lock` parsing, direct + transitive dep detection    |
+| Advisory rollup                         | CVE aggregation across direct and transitive deps       |
+| Single-dep minor bump (no breakage)     | e.g. `python-dotenv` `0.19.0` → `1.0.0`                 |
+| Minor bump with API continuity          | e.g. `djangorestframework` `3.12.4` → `3.14.0`          |
+| **Major upgrade with code patches**     | `django` `3.2.18` → `5.2.8` forces edits in 5 files     |
+| Transitive Tier 1 (parent-first)        | `urllib3` bump via `requests` parent constraint         |
+| Transitive Tier 2 (direct pin fallback) | `certifi` bump when no parent constraint allows it      |
+| Full remediate sweep                    | applying all advisory fixes in one pass                 |
+| Lockfile re-sync                        | `uv.lock` regenerates after each update                 |
 
 ## Resetting the fixture
 
-After Felix mutates the project, reset it with:
+To reset the fixture to its initial state after running upgrade tooling:
 
 ```bash
 git reset --hard HEAD && rm -rf .venv db.sqlite3 && uv sync && uv run python manage.py migrate
