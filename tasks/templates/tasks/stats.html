@@ -1,0 +1,36 @@
+{% extends "tasks/base.html" %}
+{% block content %}
+    <div class="form-card" style="margin-bottom: 20px;">
+        <h2 style="margin-bottom: 20px;">Dashboard</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div style="background: #f0f2f5; border-radius: 8px; padding: 20px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: 700; color: #1a1a2e;">{{ total }}</div>
+                <div style="font-size: 0.85rem; color: #666;">Total Tasks</div>
+            </div>
+            {% for s, count in status_stats.items %}
+            <div style="background: #f0f2f5; border-radius: 8px; padding: 20px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: 700; color: {% if s == 'done' %}#4ecdc4{% elif s == 'in_progress' %}#f5a623{% else %}#1a1a2e{% endif %};">{{ count }}</div>
+                <div style="font-size: 0.85rem; color: #666;">{{ s|title }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h3 style="margin-bottom: 12px;">By Priority</h3>
+        {% for priority, count in priority_stats.items %}
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span class="badge {{ priority }}" style="min-width: 60px; text-align: center;">{{ priority }}</span>
+            <div style="flex: 1; background: #eee; border-radius: 4px; height: 24px; overflow: hidden;">
+                {% widthratio count total 100 as pct %}
+                <div style="height: 100%; width: {% widthratio count total 100 %}%; background: {% if priority == 'high' %}#e94560{% elif priority == 'medium' %}#f5a623{% else %}#4ecdc4{% endif %}; border-radius: 4px; transition: width 0.3s;"></div>
+            </div>
+            <span style="font-size: 0.9rem; color: #555; min-width: 30px;">{{ count }}</span>
+        </div>
+        {% endfor %}
+
+        {% if latest %}
+        <h3 style="margin-top: 24px; margin-bottom: 8px;">Most Recent Task</h3>
+        <p style="color: #555;">{{ latest.title }} <span class="badge {{ latest.priority }}">{{ latest.priority }}</span></p>
+        {% endif %}
+    </div>
+    <a href="{% url 'index' %}" class="btn-back" style="font-size: 0.9rem;">Back to tasks</a>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "tasks/base.html" %}
+{% block content %}
+    <div class="filters">
+        <a href="?status=all" class="{% if filter_status == 'all' %}active{% endif %}">All ({{ counts.all }})</a>
+        <a href="?status=todo" class="{% if filter_status == 'todo' %}active{% endif %}">To Do ({{ counts.todo }})</a>
+        <a href="?status=in_progress" class="{% if filter_status == 'in_progress' %}active{% endif %}">In Progress ({{ counts.in_progress }})</a>
+        <a href="?status=done" class="{% if filter_status == 'done' %}active{% endif %}">Done ({{ counts.done }})</a>
+    </div>
+
+    {% if tasks %}
+        {% for task in tasks %}
+        <div class="task-card priority-{{ task.priority }} status-{{ task.status }}">
+            <a href="{% url 'toggle_task' task.id %}" class="task-toggle status-{{ task.status }}" title="Click to advance status">
+                {% if task.status == 'done' %}&#10003;{% elif task.status == 'in_progress' %}&#9679;{% endif %}
+            </a>
+            <div class="task-body">
+                <div class="task-title">{{ task.title }}</div>
+                {% if task.description %}
+                    <div class="task-desc">{{ task.description }}</div>
+                {% endif %}
+                <div class="task-meta">
+                    <span class="badge {{ task.priority }}">{{ task.priority }}</span>
+                    <span>{{ task.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+            <div class="task-actions">
+                <a href="{% url 'edit_task' task.id %}">Edit</a>
+                <form action="{% url 'delete_task' task.id %}" method="POST" style="display:inline" onsubmit="return confirm('Delete this task?')">
+                    {% csrf_token %}
+                    <button type="submit" class="delete">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <p>No tasks yet. Create one to get started!</p>
+            <a href="{% url 'add_task' %}" style="color: #e94560;">+ Add a task</a>
+        </div>
+    {% endif %}
+{% endblock %}

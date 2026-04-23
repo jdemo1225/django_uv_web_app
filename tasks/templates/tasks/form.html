@@ -1,0 +1,22 @@
+{% extends "tasks/base.html" %}
+{% block content %}
+    <div class="form-card">
+        <h2 style="margin-bottom: 20px;">{{ action }} Task</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form.visible_fields %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <div>
+                <button type="submit" class="btn-submit">Save Task</button>
+                <a href="{% url 'index' %}" class="btn-back">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

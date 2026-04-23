@@ -1,0 +1,13 @@
+{% extends "tasks/base.html" %}
+{% block content %}
+    <div class="form-card" style="text-align: center; padding: 60px 40px;">
+        <div style="font-size: 1.4rem; line-height: 1.6; color: #333; font-style: italic; margin-bottom: 20px;">
+            "{{ quote }}"
+        </div>
+        <div style="font-size: 1rem; color: #888;">&mdash; {{ author }}</div>
+        <div style="margin-top: 30px;">
+            <a href="{% url 'inspiration' %}" style="background: #1a1a2e; color: white; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">New Quote</a>
+            <a href="{% url 'index' %}" class="btn-back">Back to tasks</a>
+        </div>
+    </div>
+{% endblock %}

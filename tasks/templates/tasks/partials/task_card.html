@@ -1,0 +1,23 @@
+{% load task_extras %}
+<div class="task-card priority-{{ task.priority }} status-{{ task.status }}">
+    <a href="{% url 'toggle_task' task.id %}" class="task-toggle status-{{ task.status }}" title="Click to advance status">
+        {{ task.status|status_icon }}
+    </a>
+    <div class="task-body">
+        <div class="task-title">{{ task.title }}</div>
+        {% if task.description %}
+            <div class="task-desc">{{ task.description }}</div>
+        {% endif %}
+        <div class="task-meta">
+            {{ task.priority|priority_badge }}
+            <span>{{ task.created_at|date:"M d, Y" }}</span>
+        </div>
+    </div>
+    <div class="task-actions">
+        <a href="{% url 'edit_task' task.id %}">Edit</a>
+        <form action="{% url 'delete_task' task.id %}" method="POST" style="display:inline" onsubmit="return confirm('Delete this task?')">
+            {% csrf_token %}
+            <button type="submit" class="delete">Delete</button>
+        </form>
+    </div>
+</div>

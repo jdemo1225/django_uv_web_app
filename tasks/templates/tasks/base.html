@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        header { background: #1a1a2e; color: white; padding: 20px 0; margin-bottom: 30px; }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 1.5rem; }
+        header nav { display: flex; gap: 10px; align-items: center; }
+        header a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.9rem; }
+        header a.nav-link { background: transparent; border: 1px solid rgba(255,255,255,0.3); }
+        header a.nav-link:hover { background: rgba(255,255,255,0.1); }
+        header a.primary { background: #e94560; }
+        header a.primary:hover { background: #c73650; }
+
+        .flash { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 0.9rem; }
+        .flash.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        .filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filters a {
+            padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.85rem;
+            background: white; color: #555; border: 1px solid #ddd; transition: all 0.2s;
+        }
+        .filters a:hover { border-color: #1a1a2e; color: #1a1a2e; }
+        .filters a.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }
+
+        .task-card {
+            background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px;
+            border-left: 4px solid #ddd; display: flex; align-items: flex-start; gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: transform 0.1s;
+        }
+        .task-card:hover { transform: translateX(2px); }
+        .task-card.priority-high { border-left-color: #e94560; }
+        .task-card.priority-medium { border-left-color: #f5a623; }
+        .task-card.priority-low { border-left-color: #4ecdc4; }
+        .task-card.status-done { opacity: 0.6; }
+        .task-card.status-done .task-title { text-decoration: line-through; }
+
+        .task-toggle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ccc;
+            background: white; cursor: pointer; flex-shrink: 0; margin-top: 2px;
+            display: flex; align-items: center; justify-content: center; font-size: 12px;
+            text-decoration: none; color: inherit;
+        }
+        .task-toggle.status-in_progress { border-color: #f5a623; background: #fff8e8; }
+        .task-toggle.status-done { border-color: #4ecdc4; background: #4ecdc4; color: white; }
+
+        .task-body { flex: 1; }
+        .task-title { font-weight: 600; margin-bottom: 4px; }
+        .task-desc { font-size: 0.85rem; color: #666; margin-bottom: 6px; }
+        .task-meta { font-size: 0.75rem; color: #999; display: flex; gap: 12px; align-items: center; }
+        .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;
+            text-transform: uppercase; font-weight: 600;
+        }
+        .badge.high { background: #fde8ec; color: #e94560; }
+        .badge.medium { background: #fef5e0; color: #d4940a; }
+        .badge.low { background: #e0f7f5; color: #2da89a; }
+
+        .task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .task-actions a, .task-actions button {
+            padding: 4px 10px; border-radius: 4px; font-size: 0.8rem;
+            text-decoration: none; border: 1px solid #ddd; background: white; color: #555; cursor: pointer;
+        }
+        .task-actions a:hover { background: #f0f2f5; }
+        .task-actions button.delete { color: #e94560; border-color: #f5c6cf; }
+        .task-actions button.delete:hover { background: #fde8ec; }
+
+        .empty { text-align: center; padding: 60px 20px; color: #999; }
+        .empty p { margin-bottom: 16px; }
+
+        .form-card { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px;
+            font-size: 0.95rem; font-family: inherit;
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: #1a1a2e; box-shadow: 0 0 0 2px rgba(26,26,46,0.1);
+        }
+        .btn-submit {
+            background: #1a1a2e; color: white; border: none; padding: 10px 24px;
+            border-radius: 6px; font-size: 0.95rem; cursor: pointer;
+        }
+        .btn-submit:hover { background: #2d2d4e; }
+        .btn-back { color: #555; text-decoration: none; font-size: 0.9rem; margin-left: 12px; }
+        .error { color: #e94560; font-size: 0.8rem; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Task Tracker</h1>
+            <nav>
+                <a href="{% url 'stats' %}" class="nav-link">Stats</a>
+                <a href="{% url 'inspiration' %}" class="nav-link">Inspiration</a>
+                <a href="{% url 'add_task' %}" class="primary">+ New Task</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
