@@ -8,7 +8,7 @@ dependencies = [
     "django==3.2.18",
     "djangorestframework==3.12.4",
     "requests==2.25.1",
-    "gunicorn==19.10.0",
+    "gunicorn==22.0.0",
     "python-dotenv==0.19.0",
 ]
 
